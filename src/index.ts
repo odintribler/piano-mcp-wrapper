@@ -11,9 +11,17 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { config } from "./config.js";
 import { getPianoClient } from "./pianoClient.js";
+import { registerOAuthRoutes } from "./oauth.js";
 
 const app = express();
+// Heroku's router terminates TLS and forwards over plain HTTP; trust its
+// X-Forwarded-* headers so req.protocol reports "https" (the OAuth issuer
+// URLs in oauth.ts depend on this being correct).
+app.set("trust proxy", true);
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+registerOAuthRoutes(app);
 
 const BEARER_PREFIX = "Bearer ";
 
